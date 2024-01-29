@@ -37,7 +37,7 @@ jobs:
 
       - name: Acquire access token
         id: access-token
-        if: ${{ inputs.build-type }} == "release"
+        if: ${{ inputs.release }}
         uses: actions/create-github-app-token@v1
         with:
           app-id: ${{ secrets.GITBOT_APP_ID }}
