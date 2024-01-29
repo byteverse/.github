@@ -48,13 +48,13 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: 'byteverse/.github'
-          path: '.github'
+          path: '.github-common'
           ref: 'testing'
 
       - name: Run Pre-Release Checks
         if: ${{ inputs.release }}
         run: |
-          ./.github/check-release.sh "${{ github.ref_name }}" "${{ vars.MAINTAINER_EMAIL }}"
+          ./.github-common/check-release.sh "${{ github.ref_name }}" "${{ vars.MAINTAINER_EMAIL }}"
           if [ $? -ne 0 ];
           then
             echo "${RESULT}"
