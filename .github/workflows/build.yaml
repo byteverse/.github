@@ -49,7 +49,7 @@ jobs:
         with:
           repository: 'byteverse/.github'
           path: '.github-repo'
-          ref: 'testing'
+          ref: 'main'
 
       - name: Run Pre-Release Checks
         if: ${{ inputs.release }}
@@ -61,53 +61,53 @@ jobs:
             exit 1
           fi
 
-      # - name: Set up GHC ${{ inputs.ghc-version }}
-      #   uses: haskell-actions/setup@latest
-      #   id: setup
-      #   with:
-      #     ghc-version: ${{ inputs.ghc-version }}
-      #     cabal-version: ${{ inputs.cabal-version }}
-      #     cabal-update: true
+      - name: Set up GHC ${{ inputs.ghc-version }}
+        uses: haskell-actions/setup@latest
+        id: setup
+        with:
+          ghc-version: ${{ inputs.ghc-version }}
+          cabal-version: ${{ inputs.cabal-version }}
+          cabal-update: true
 
-      # - name: Configure the build
-      #   run: |
-      #     cabal configure --enable-tests --enable-benchmarks --disable-documentation
-      #     cabal build all --dry-run
+      - name: Configure the build
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build all --dry-run
 
-      # - name: Install dependencies
-      #   run: cabal build all --only-dependencies
+      - name: Install dependencies
+        run: cabal build all --only-dependencies
 
-      # - name: Build
-      #   run: cabal build all
+      - name: Build
+        run: cabal build all
 
-      # - name: Run tests
-      #   run: cabal test all --test-show-details=direct
+      - name: Run tests
+        run: cabal test all --test-show-details=direct
 
-      # - name: Check cabal file
-      #   if: ${{ inputs.release }}
-      #   run: cabal check
+      - name: Check cabal file
+        if: ${{ inputs.release }}
+        run: cabal check
 
-      # - name: Build source archive
-      #   if: ${{ inputs.release }}
-      #   run: cabal sdist --output-directory ./dist-newstyle
+      - name: Build source archive
+        if: ${{ inputs.release }}
+        run: cabal sdist --output-directory ./dist-newstyle
 
-      # - name: Build documentation archive
-      #   if: ${{ inputs.release }}
-      #   run: |
-      #     PKG_VERSION="${{ github.event.repository.name }}-${{ github.ref_name }}"
-      #     cabal haddock \
-      #       --haddock-html-location='https://hackage.haskell.org/package/${PKG_VERSION}/docs' \
-      #       --haddock-hyperlink-source \
-      #       --haddock-quickjump \
-      #       --haddock-for-hackage
+      - name: Build documentation archive
+        if: ${{ inputs.release }}
+        run: |
+          PKG_VERSION="${{ github.event.repository.name }}-${{ github.ref_name }}"
+          cabal haddock \
+            --haddock-html-location='https://hackage.haskell.org/package/${PKG_VERSION}/docs' \
+            --haddock-hyperlink-source \
+            --haddock-quickjump \
+            --haddock-for-hackage
 
-      # - name: Create release
-      #   if: ${{ inputs.release }}
-      #   uses: ncipollo/release-action@v1
-      #   env:
-      #     GITHUB_TOKEN: ${{ steps.access-token.outputs.token }}
-      #   with:
-      #     allowUpdates: true
-      #     artifacts: "./dist-newstyle/*.tar.gz"
-      #     artifactErrorsFailBuild: true
-      #     generateReleaseNotes: true
+      - name: Create release
+        if: ${{ inputs.release }}
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ steps.access-token.outputs.token }}
+        with:
+          allowUpdates: true
+          artifacts: "./dist-newstyle/*.tar.gz"
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: true
