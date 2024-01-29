@@ -43,9 +43,13 @@ jobs:
           app-id: ${{ secrets.GITBOT_APP_ID }}
           private-key: ${{ secrets.GITBOT_APP_PRIVATE_KEY }}
 
-      - name: Import scripts
+      - name: Import common files
         if: ${{ inputs.release }}
-        uses: byteverse/.github/.github/check-release.sh@testing
+        uses: actions/checkout@v4
+        with:
+          repository: 'byteverse/.github'
+          path: '.github'
+          ref: 'testing'
 
       - name: Run Pre-Release Checks
         if: ${{ inputs.release }}
