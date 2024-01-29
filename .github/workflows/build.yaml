@@ -1,0 +1,113 @@
+on:
+  workflow_call:
+    inputs:
+      docker-image:
+        # The Docker image.
+        required: false
+        type: string
+        default: ubuntu-22.04
+      ghc-version:
+        # GHC version.
+        required: false
+        type: string
+        default: 9.4.7
+      cabal-version:
+        # Cabal version.
+        required: false
+        type: string
+        default: 3.10.1.0
+      release:
+        # If true, perform a release build.
+        required: false
+        type: boolean
+        default: true
+
+# Concurrency settings.
+# Only one job of this workflow will run at a time.
+# If a job is currently running, it'll be canceled.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: "${{ inputs.docker-image }}"
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Acquire access token
+        id: access-token
+        if: ${{ inputs.release }}
+        uses: actions/create-github-app-token@v1
+        with:
+          app-id: ${{ secrets.GITBOT_APP_ID }}
+          private-key: ${{ secrets.GITBOT_APP_PRIVATE_KEY }}
+
+      - name: Import common files
+        if: ${{ inputs.release }}
+        uses: actions/checkout@v4
+        with:
+          repository: 'byteverse/.github'
+          path: '.github-repo'
+          ref: 'main'
+
+      - name: Run Pre-Release Checks
+        if: ${{ inputs.release }}
+        run: |
+          ./.github-repo/.github/check-release.sh "${{ github.ref_name }}" "${{ vars.MAINTAINER_EMAIL }}"
+          if [ $? -ne 0 ];
+          then
+            echo "${RESULT}"
+            exit 1
+          fi
+
+      - name: Set up GHC ${{ inputs.ghc-version }}
+        uses: haskell-actions/setup@latest
+        id: setup
+        with:
+          ghc-version: ${{ inputs.ghc-version }}
+          cabal-version: ${{ inputs.cabal-version }}
+          cabal-update: true
+
+      - name: Configure the build
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build all --dry-run
+
+      - name: Install dependencies
+        run: cabal build all --only-dependencies
+
+      - name: Build
+        run: cabal build all
+
+      - name: Run tests
+        run: cabal test all --test-show-details=direct
+
+      - name: Check cabal file
+        if: ${{ inputs.release }}
+        run: cabal check
+
+      - name: Build source archive
+        if: ${{ inputs.release }}
+        run: cabal sdist --output-directory ./dist-newstyle
+
+      - name: Build documentation archive
+        if: ${{ inputs.release }}
+        run: |
+          PKG_VERSION="${{ github.event.repository.name }}-${{ github.ref_name }}"
+          cabal haddock \
+            --haddock-html-location='https://hackage.haskell.org/package/${PKG_VERSION}/docs' \
+            --haddock-hyperlink-source \
+            --haddock-quickjump \
+            --haddock-for-hackage
+
+      - name: Create release
+        if: ${{ inputs.release }}
+        uses: ncipollo/release-action@v1
+        env:
+          GITHUB_TOKEN: ${{ steps.access-token.outputs.token }}
+        with:
+          allowUpdates: true
+          artifacts: "./dist-newstyle/*.tar.gz"
+          artifactErrorsFailBuild: true
+          generateReleaseNotes: true
