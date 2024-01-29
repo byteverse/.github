@@ -44,6 +44,7 @@ jobs:
           private-key: ${{ secrets.GITBOT_APP_PRIVATE_KEY }}
 
       - name: Run Pre-Release Checks
+        uses: byteverse/.github/.github/check-release.sh@testing
         if: ${{ inputs.release }}
         run: |
           ./.github/check-release.sh "${{ github.ref_name }}" "${{ vars.MAINTAINER_EMAIL }}"
