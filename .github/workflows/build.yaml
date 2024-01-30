@@ -31,6 +31,8 @@ concurrency:
 
 jobs:
   build:
+    env:
+      PKG_VERSION: "${{ github.event.repository.name }}-${{ github.ref_name }}"
     runs-on: "${{ inputs.docker-image }}"
     steps:
       - uses: actions/checkout@v4
@@ -90,15 +92,13 @@ jobs:
       - name: Build source archive
         id: build
         if: ${{ inputs.release }}
-        env:
-          PKG_VERSION: "${{ github.event.repository.name }}-${{ github.ref_name }}"
         run: cabal sdist --output-directory ./dist-newstyle
 
       - name: Build documentation archive
         if: ${{ inputs.release }}
         run: |
           cabal haddock \
-            --haddock-html-location='https://hackage.haskell.org/package/${{ steps.build.env.PKG_VERSION }}/docs' \
+            --haddock-html-location="'https://hackage.haskell.org/package/${{ env.PKG_VERSION }}/docs'" \
             --haddock-hyperlink-source \
             --haddock-quickjump \
             --haddock-for-hackage
@@ -117,5 +117,5 @@ jobs:
       - name: Upload Release Candidate to Hackage
         if: ${{ inputs.release }}
         run: |
-          TARBALL="./dist-newstyle/${{ steps.build.env.PKG_VERSION }}.tar.gz"
-          cabal upload -u "${{ secrets.HACKAGE_USER }}" -p "${{ secrets.HACKAGE_PASSWORD }}" ${TARBALL}
+          TARBALL="./dist-newstyle/${{ env.PKG_VERSION }}.tar.gz"
+          cabal upload -u "${{ secrets.HACKAGE_USER }}" -p "${{ secrets.HACKAGE_PASSWORD }}" "${TARBALL}"
