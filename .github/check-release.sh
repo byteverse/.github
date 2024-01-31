@@ -108,13 +108,14 @@ then
 fi
 
 # Changelog: Ensure it contains an entry for this release version.
-CHANGELOG_VERSION=$(grep -Eo "##\s+${RELEASE_VERSION}" "${CHANGELOG_FILE}" || true)
+REGEX="##\s+${RELEASE_VERSION}\s+--\s+[[:digit:]]{4}-[[:digit:]]{2}-[[:digit:]]{2}"
+CHANGELOG_VERSION=$(grep -Eo "$REGEX" "${CHANGELOG_FILE}" || true)
 
 CHANGELOG_VERSION_VALID=true
 if [ -z "${CHANGELOG_VERSION}" ];
 then
   CHANGELOG_VERSION_VALID=false
-  echo "You need to add an entry in ${CHANGELOG_FILE} for version ${RELEASE_VERSION}"
+  echo "You need to add or correct the entry in ${CHANGELOG_FILE} for version ${RELEASE_VERSION}"
 fi
 
 CHECKS=(
