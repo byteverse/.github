@@ -10,7 +10,7 @@ on:
         # GHC version.
         required: false
         type: string
-        default: 9.4.7
+        default: 9.6.3
       cabal-version:
         # Cabal version.
         required: false
