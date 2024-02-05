@@ -63,6 +63,22 @@ jobs:
             exit 1
           fi
 
+      - name: Check Build Dependencies
+        run: |
+          name="workflow_dependencies.sh"
+          echo "Checking for $name hook..."
+          file="${{ github.workspace }}/.github/$name"
+          if [ -x "$file" ]; then
+            echo "Running hook: $name"
+            RESULT=$(. "$file")
+            if [ $? -ne 0 ]; then
+              echo "$RESULT"
+              exit 1
+            fi
+          else
+            echo "Skipping. No hook found."
+          fi
+
       - name: Set up GHC ${{ inputs.ghc-version }}
         uses: haskell-actions/setup@latest
         id: setup
