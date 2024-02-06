@@ -1,14 +1,17 @@
 # .github/workflows
 
-## build.yaml
-A common workflow template for building Haskell projects.
-Uses a GitHub-hosted runner.
+All workflows run on GitHub runners using the latest ubuntu image.
 Only performs clean builds.
 
-Workflows can specify the following input parameters:
-* docker-image: The name of the Docker image for the runner to use, e.g. "ubuntu-22.04"
-* ghc-version: The GHC version to use, e.g. "9.4.7"
-* cabal-version: The version of cabal to use, e.g. "3.10.1.0"
-* release: set to true for a release build
+## build-matrix.yaml
+A common workflow template for building feature branches.
+Triggered whenever a pull request is opened or updated.
+Builds against all GHC versions defined in a project's cabal file.
 
-Default values will be used if parameters aren't defined.
+Workflows must specify the following input parameter:
+* cabal-file: The cabal file to use, e.g. "my-project.cabal"
+
+## release.yaml
+A common workflow for building Hackage releases.
+Only builds against the GHC version currently used by Hackage.
+Triggered whenever a new tag is pushed to origin.
