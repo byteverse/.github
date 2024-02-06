@@ -82,10 +82,10 @@ then
 fi
 
 CABAL_MAINTAINER_VALID=true
-if [ ${CABAL_MAINTAINER_FIELD} != ${MAINTAINER_EMAIL} ];
+if [[ ! "${CABAL_MAINTAINER_FIELD}" =~ "${MAINTAINER_EMAIL}" ]];
 then
   CABAL_MAINTAINER_VALID=false
-  echo "You need to change the maintainer field in ${CABAL_FILE} to ${MAINTAINER_EMAIL}"
+  echo "The maintainer field in ${CABAL_FILE} needs to include ${MAINTAINER_EMAIL}"
 fi
 
 # Cabal: Ensure source-repository entry exists and is correct.
