@@ -1,0 +1,78 @@
+on:
+  workflow_call:
+    inputs:
+      cabal-file:
+        # The cabal file.
+        required: true
+        type: string
+
+# Concurrency settings.
+# Only one job of this workflow will run at a time.
+# If a job is currently running, it'll be canceled.
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: true
+
+jobs:
+  generate-matrix:
+      name: "Generate matrix from cabal file"
+      outputs:
+        matrix: ${{ steps.set-matrix.outputs.matrix }}
+      runs-on: ubuntu-latest
+      steps:
+        - name: Extract GHC versions
+          id: set-matrix
+          uses: kleidukos/get-tested@v0.1.6.0
+          with:
+            cabal-file: ${{ inputs.cabal-file }}
+            ubuntu: true
+            version: 0.1.6.0
+
+  build:
+    name: ${{ matrix.ghc }} on ${{ matrix.os }}
+    needs: generate-matrix
+    runs-on: ${{ matrix.os }}
+    continue-on-error: true
+    strategy:
+      matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
+      fail-fast: false
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check Build Dependencies
+        run: |
+          name="workflow_dependencies.sh"
+          echo "Checking for $name hook..."
+          file="${{ github.workspace }}/.github/$name"
+          if [ -x "$file" ]; then
+            echo "Running hook: $name"
+            RESULT=$(. "$file")
+            if [ $? -ne 0 ]; then
+              echo "$RESULT"
+              exit 1
+            fi
+          else
+            echo "Skipping. No hook found."
+          fi
+
+      - name: Set up GHC ${{ matrix.ghc }}
+        uses: haskell-actions/setup@latest
+        id: setup
+        with:
+          ghc-version: ${{ matrix.ghc }}
+          cabal-version: 'latest'
+
+      - name: Configure the build
+        run: |
+          cabal configure --enable-tests --enable-benchmarks --disable-documentation
+          cabal build all --dry-run
+
+      - name: Install dependencies
+        run: cabal build all --only-dependencies
+
+      - name: Build
+        run: cabal build all
+
+      - name: Run tests
+        run: cabal test all --test-show-details=direct
