@@ -1,9 +1,15 @@
 on:
   workflow_call:
+    inputs:
+      artifact-name:
+        # The artifact name. Specify this if the artifact name is different from the repo's name.
+        required: false
+        type: string
+        default: ${{ github.event.repository.name }}
 
 env:
   hackage-ghc-version: 9.6.3
-  pkg-version: "${{ github.event.repository.name }}-${{ github.ref_name }}"
+  pkg-version: "${{ inputs.artifact-name }}-${{ github.ref_name }}"
 
 # Concurrency settings.
 # Only one job of this workflow will run at a time.

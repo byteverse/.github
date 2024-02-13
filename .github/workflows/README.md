@@ -15,3 +15,6 @@ Workflows must specify the following input parameter:
 A common workflow for building Hackage releases.
 Only builds against the GHC version currently used by Hackage.
 Triggered whenever a new tag is pushed to origin.
+
+Workflows may specify the following input parameter:
+* artifact-name: The name of the artifact to upload. Defaults to the repository name.
