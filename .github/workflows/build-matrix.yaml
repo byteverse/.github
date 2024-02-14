@@ -66,6 +66,7 @@ jobs:
       - name: Configure the build
         run: |
           cabal configure --disable-documentation --disable-benchmarks
+          cabal update
 
       - name: Build
         run: cabal build all

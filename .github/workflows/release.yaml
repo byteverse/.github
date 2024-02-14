@@ -76,6 +76,7 @@ jobs:
           # the same way that Hackage does. If Hackage changes how they execute test suites in
           # the future, we need to reflect that change here also.
           cabal configure --disable-benchmarks --disable-documentation
+          cabal update
 
       - name: Build
         run: cabal build all
