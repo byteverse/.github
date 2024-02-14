@@ -75,11 +75,7 @@ jobs:
           # We purposely don't set the --enable-tests flag in order to run tests
           # the same way that Hackage does. If Hackage changes how they execute test suites in
           # the future, we need to reflect that change here also.
-          # cabal configure --enable-tests --enable-benchmarks --disable-documentation
-          cabal build all --dry-run
-
-      - name: Install dependencies
-        run: cabal build all --only-dependencies
+          cabal configure --disable-benchmarks --disable-documentation
 
       - name: Build
         run: cabal build all
