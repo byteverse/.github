@@ -32,7 +32,7 @@ jobs:
     name: ${{ matrix.ghc }} on ${{ matrix.os }}
     needs: generate-matrix
     runs-on: ${{ matrix.os }}
-    continue-on-error: true
+    continue-on-error: false
     strategy:
       matrix: ${{ fromJSON(needs.generate-matrix.outputs.matrix) }}
       fail-fast: false
