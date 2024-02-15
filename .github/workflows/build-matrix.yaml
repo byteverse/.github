@@ -71,4 +71,7 @@ jobs:
         run: cabal build all
 
       - name: Run tests
-        run: cabal test all --test-show-details=direct
+        run: |
+          cabal test all --test-show-details=direct
+          cabal install doctest
+          cabal repl --build-depends=QuickCheck --with-ghc=doctest --repl-options='-fno-warn-orphans -Wno-unused-packages'
