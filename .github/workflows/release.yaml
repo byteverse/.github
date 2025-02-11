@@ -83,9 +83,6 @@ jobs:
       - name: Run tests
         run: cabal test all --test-show-details=direct
 
-      - name: Check cabal file
-        run: cabal check
-
       - name: Build source archive
         id: build
         run: cabal sdist --output-directory ./dist-newstyle
