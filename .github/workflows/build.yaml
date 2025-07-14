@@ -99,7 +99,7 @@ jobs:
         run: cabal build all
 
       - name: Run tests
-        run: cabal test all --test-show-details=direct
+        run: cabal test all --enable-tests --test-show-details=direct
 
       - name: Check cabal file
         if: ${{ inputs.release }}
